@@ -1,189 +1,390 @@
 <!doctype html>
 <html lang="es">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Oír la luz</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500&display=swap">
-<link rel="stylesheet" href="style.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>MAREA · Sonificación del Movimiento del Mar</title>
+  <meta name="description" content="Instalación sonora interactiva: video en bucle del mar y mezcla dinámica de sonidos ambientales según la agitación del agua.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div class="grain" aria-hidden="true"></div>
 
-<div class="bar bar-top">
-  <span>Clase 03 · Sonido · Ejercicio 03</span>
-  <span class="grow chain" id="chain">luz → cámara → píxel → <b>cambio</b> → regla → nota → sonido</span>
-  <button type="button" class="neon" id="soundBtn" aria-pressed="false">▶ Activar sonido</button>
-  <button type="button" id="fsBtn">⛶ Pantalla completa</button>
-</div>
+  <!-- Barra Superior de Navegación -->
+  <header class="app-header">
+    <div class="brand">
+      <div class="brand-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M2 12c2.5-3 5.5-3 8 0s5.5 3 8 0 4-2 4-2" />
+          <path d="M2 17c2.5-3 5.5-3 8 0s5.5 3 8 0 4-2 4-2" />
+        </svg>
+      </div>
+      <div class="brand-text">
+        <span class="brand-title">MAREA</span>
+        <span class="brand-sub">Sonificación del Océano</span>
+      </div>
+    </div>
 
-<main class="stage" id="stage">
-  <div class="screen">
-  <canvas id="view"></canvas>
-  <div class="title"><h1>oír la luz</h1><p id="status">Fuente: ejemplo · calle sintética</p></div>
-  <div class="readout" aria-live="polite">
-    <div class="note" id="lastNote">—</div>
-    <div><span class="lbl">frecuencia </span><span class="val" id="lastHz">—</span> <span class="lbl" id="lblZone"> · zona </span><span class="val" id="lastZone">—</span> <span class="lbl" id="lblPct"> · cambio </span><span class="val" id="lastPct">—</span></div>
-    <div class="rule" id="mapText">zona → nota</div>
-  </div>
-  <div class="toast" id="toast" hidden></div>
-  </div>
+    <!-- Indicador de Estado del Agua -->
+    <div class="water-status-pill" id="waterStatusPill">
+      <span class="status-dot" id="statusDot"></span>
+      <span class="status-label" id="statusLabel">Calma Serena</span>
+      <span class="status-metric" id="statusMetric">M: 0%</span>
+    </div>
 
-  <nav class="dock" id="dock" aria-label="Parámetros">
-    <div>
-      <button type="button" class="trigger" aria-expanded="false" data-panel="pMode"><span><span class="num">01</span>Modo</span><span class="state" id="stMode">zonas</span></button>
-      <div class="panel" id="pMode" hidden>
-        <div class="panel-bar"><span>01 · Modo de disparo</span><button type="button" data-close>Cerrar</button></div>
-        <div class="seg seg4" role="group" aria-label="Modo">
-          <button type="button" data-mode="zonas" aria-pressed="true">Zonas</button>
-          <button type="button" data-mode="linea" aria-pressed="false">Línea</button>
-          <button type="button" data-mode="lineas" aria-pressed="false">Líneas</button>
-          <button type="button" data-mode="escaner" aria-pressed="false">Escáner</button>
-        </div>
-        <p class="hint" id="modeHint">La imagen se divide en una grilla: cada zona es una tecla que suena cuando algo se mueve dentro de ella.</p>
-        <div class="row" data-show="linea"><label for="lx">Posición</label><input type="range" id="lx" min="5" max="95" step="1" value="50"><output id="lxOut">50 %</output></div>
-        <div class="row" data-show="lineas"><label for="nl">Líneas</label><input type="range" id="nl" min="2" max="4" step="1" value="3"><output id="nlOut">3</output></div>
-        <div class="row" data-show="linea lineas escaner"><label for="segs">Tramos</label><input type="range" id="segs" min="3" max="12" step="1" value="7"><output id="segsOut">7</output></div>
-        <div class="row" data-show="escaner"><label for="sdur">Vuelta</label><input type="range" id="sdur" min="2" max="20" step="1" value="6"><output id="sdurOut">6 s</output></div>
-        <div class="row" data-show="escaner"><label for="steps">Pasos</label><input type="range" id="steps" min="8" max="32" step="1" value="16"><output id="stepsOut">16</output></div>
-        <div class="row" data-show="escaner"><label for="bright">Brillo mín.</label><input type="range" id="bright" min="30" max="240" step="1" value="90"><output id="brightOut">90</output></div>
-        <div class="checks" data-show="linea lineas">
-          <label><input type="checkbox" id="mapDir"> dirección del cruce → octava (← suena más grave)</label>
-        </div>
-        <div class="checks" data-show="escaner">
-          <label><input type="checkbox" id="invert"> invertir: leer lo oscuro en vez de lo claro</label>
-        </div>
-        <ol class="voices" id="voices" data-show="lineas"></ol>
-      </div>
+    <!-- Selector de Fuentes de Video -->
+    <div class="source-selector" role="group" aria-label="Fuente de Video">
+      <button type="button" class="source-btn active" id="btnSrcSea" title="Video en bucle del mar (mar.mp4)">
+        <span class="btn-icon">🌊</span>
+        <span class="btn-txt">Mar</span>
+      </button>
+      <button type="button" class="source-btn" id="btnSrcCam" title="Usar cámara web en vivo">
+        <span class="btn-icon">📹</span>
+        <span class="btn-txt">Cámara</span>
+      </button>
+      <button type="button" class="source-btn" id="btnSrcFile" title="Cargar otro archivo de video">
+        <span class="btn-icon">📁</span>
+        <span class="btn-txt">Video</span>
+      </button>
+      <input type="file" id="videoFileInput" accept="video/*" hidden>
     </div>
-    <div>
-      <button type="button" class="trigger" aria-expanded="false" data-panel="pVis"><span><span class="num">02</span>Visualización</span><span class="state" id="stVis">sutil</span></button>
-      <div class="panel" id="pVis" hidden>
-        <div class="panel-bar"><span>02 · Visualización</span><button type="button" data-close>Cerrar</button></div>
-        <div class="seg" role="group" aria-label="Fondo">
-          <button type="button" data-view="mix" aria-pressed="true">Video</button>
-          <button type="button" data-view="mask" aria-pressed="false">Máquina</button>
-        </div>
-        <p class="hint">Máquina reemplaza el video por los píxeles que cambiaron: es todo lo que el sistema ve.</p>
-        <div class="row"><label for="tint">Tono azul</label><input type="range" id="tint" min="0" max="60" step="1" value="22"><output id="tintOut">22 %</output></div>
-        <div class="row"><label for="veil">Oscurecer</label><input type="range" id="veil" min="0" max="70" step="1" value="0"><output id="veilOut">0 %</output></div>
-        <p class="hint">Líneas, notas y partículas se apagan desde la barra inferior.</p>
-      </div>
-    </div>
-    <div>
-      <button type="button" class="trigger" aria-expanded="false" data-panel="pKeys"><span><span class="num">03</span>Teclas</span><span class="state" id="stKeys">5 × 3</span></button>
-      <div class="panel" id="pKeys" hidden>
-        <div class="panel-bar"><span>03 · Teclas</span><button type="button" data-close>Cerrar</button></div>
-        <div class="row"><label for="cols">Columnas</label><input type="range" id="cols" min="3" max="12" step="1" value="5"><output id="colsOut">5</output></div>
-        <div class="row"><label for="rows">Filas</label><input type="range" id="rows" min="1" max="3" step="1" value="3"><output id="rowsOut">3</output></div>
-        <div class="row two"><label for="scale">Escala</label>
-          <select id="scale"><option value="pmaj">Pentatónica mayor</option><option value="pmin">Pentatónica menor</option><option value="maj">Mayor</option><option value="chr">Cromática</option></select></div>
-        <div class="row two"><label for="root">Nota base</label>
-          <select id="root"><option value="48" selected>Do3 · 131 Hz</option><option value="55">Sol3 · 196 Hz</option><option value="57">La3 · 220 Hz</option><option value="60">Do4 · 262 Hz</option></select></div>
-        <p class="hint">Columnas recorren la escala; filas son octavas, la de arriba es la más aguda. Columnas y filas solo aplican al modo Zonas; escala y nota base aplican a todos.</p>
-      </div>
-    </div>
-    <div>
-      <button type="button" class="trigger" aria-expanded="false" data-panel="pDet"><span><span class="num">04</span>Detección</span><span class="state" id="stDet">3 %</span></button>
-      <div class="panel" id="pDet" hidden>
-        <div class="panel-bar"><span>04 · Detección</span><button type="button" data-close>Cerrar</button></div>
-        <div class="row"><label for="thr">Umbral píxel</label><input type="range" id="thr" min="8" max="80" step="1" value="28"><output id="thrOut">28</output></div>
-        <div class="row"><label for="sens">Sensibilidad</label><input type="range" id="sens" min="1" max="40" step="1" value="3"><output id="sensOut">3 %</output></div>
-        <div class="row"><label for="cool">Repetición</label><input type="range" id="cool" min="60" max="1200" step="20" value="320"><output id="coolOut">320 ms</output></div>
-        <p class="hint">Compara cada fotograma con el anterior (15 por segundo, 128 × 72 px). Una zona o un tramo de línea suena cuando el porcentaje de píxeles que cambian supera la sensibilidad. El escáner no usa estos valores: lee el brillo.</p>
-      </div>
-    </div>
-    <div>
-      <button type="button" class="trigger" aria-expanded="false" data-panel="pSnd"><span><span class="num">05</span>Sonido</span><span class="state" id="stSnd">triang.</span></button>
-      <div class="panel" id="pSnd" hidden>
-        <div class="panel-bar"><span>05 · Sonido</span><button type="button" data-close>Cerrar</button></div>
-        <div class="seg" role="group" aria-label="Forma de onda">
-          <button type="button" data-wave="sine" aria-pressed="false">Seno</button>
-          <button type="button" data-wave="triangle" aria-pressed="true">Triang.</button>
-          <button type="button" data-wave="square" aria-pressed="false">Cuadr.</button>
-          <button type="button" data-wave="sawtooth" aria-pressed="false">Sierra</button>
-        </div>
-        <div class="row"><label for="atk">Attack</label><input type="range" id="atk" min="1" max="800" step="1" value="8"><output id="atkOut">8 ms</output></div>
-        <div class="row"><label for="rel">Release</label><input type="range" id="rel" min="40" max="3000" step="10" value="700"><output id="relOut">700 ms</output></div>
-        <div class="row"><label for="cut">Pasa-bajos</label><input type="range" id="cut" min="200" max="12000" step="10" value="3200"><output id="cutOut">3.2k</output></div>
-        <div class="row"><label for="rev">Reverb</label><input type="range" id="rev" min="0" max="100" step="1" value="30"><output id="revOut">30 %</output></div>
-        <div class="row"><label for="vol">Volumen</label><input type="range" id="vol" min="0" max="100" step="1" value="60"><output id="volOut">60 %</output></div>
-      </div>
-    </div>
-    <div>
-      <button type="button" class="trigger" aria-expanded="false" data-panel="pMap"><span><span class="num">06</span>Mapping</span><span class="state" id="stMap">3 reglas</span></button>
-      <div class="panel" id="pMap" hidden>
-        <div class="panel-bar"><span>06 · Mapping</span><button type="button" data-close>Cerrar</button></div>
-        <div class="checks">
-          <label><input type="checkbox" checked disabled> <span id="mapMain">zona → nota</span></label>
-          <label><input type="checkbox" id="mapVel" checked> intensidad del movimiento → volumen</label>
-          <label><input type="checkbox" id="mapPan" checked> posición horizontal → pan</label>
-          <label><input type="checkbox" id="mirror" checked> espejo (cámara)</label>
-        </div>
-      </div>
-    </div>
-    <div>
-      <button type="button" class="trigger" aria-expanded="false" data-panel="pRec"><span><span class="num">07</span>Grabar</span><span class="state" id="stRec">—</span></button>
-      <div class="panel" id="pRec" hidden>
-        <div class="panel-bar"><span>07 · Grabar y descargar</span><button type="button" data-close>Cerrar</button></div>
-        <div class="btnrow">
-          <button type="button" class="rec" id="recBtn" aria-pressed="false">● Grabar</button>
-          <span class="mono" id="recTime">0:00</span>
-          <button type="button" id="recDl" disabled>Descargar grabación</button>
-        </div>
-        <div class="btnrow"><button type="button" id="noteDl" disabled>Descargar última nota</button></div>
-        <p class="hint" id="recHint">Graba lo que suena. Activa el sonido primero.</p>
-      </div>
-    </div>
-    <div>
-      <button type="button" class="trigger" aria-expanded="false" data-panel="pMidi"><span><span class="num">08</span>MIDI</span><span class="state" id="stMidi">sin conectar</span></button>
-      <div class="panel" id="pMidi" hidden>
-        <div class="panel-bar"><span>08 · Controlador MIDI</span><button type="button" data-close>Cerrar</button></div>
-        <div class="btnrow">
-          <button type="button" id="midiBtn">Conectar MIDI</button>
-          <button type="button" id="learnBtn" aria-pressed="false" disabled>Asignar</button>
-          <button type="button" id="midiClear" disabled>Borrar</button>
-        </div>
-        <p class="hint" id="midiHint">Conecta un controlador, presiona Asignar, abre un panel, toca un slider y mueve una perilla.</p>
-      </div>
-    </div>
-  </nav>
 
-  <section class="signal" id="signal" aria-label="Señal">
-    <div class="signal-bar"><span>09 · Señal</span><button type="button" id="sigHide" style="border:0;padding:0 2px;color:var(--gray-2)">Ocultar</button></div>
-    <div class="signal-body">
-      <div class="cap"><span id="scopeCap">forma de onda · triangular</span><span id="specCap">armónicos</span></div>
-      <canvas id="scope" style="height:76px"></canvas>
-      <div class="cap"><span id="envCapL">envolvente</span><span id="envCapR">reverb · vol</span></div>
-      <canvas id="env" style="height:64px"></canvas>
-      <div class="cap"><span>partitura · últimos 10 s</span><span>altura × tiempo</span></div>
-      <canvas id="roll"></canvas>
-    </div>
-  </section>
-</main>
+    <!-- Acciones Principales -->
+    <div class="header-actions">
+      <button type="button" class="sound-toggle-btn" id="soundToggleBtn" aria-pressed="false">
+        <span class="sound-wave-icon">
+          <span></span><span></span><span></span><span></span>
+        </span>
+        <span id="soundToggleTxt">Activar Sonido</span>
+      </button>
 
-<div class="bar bar-bottom">
-  <div class="group-inline seg" role="group" aria-label="Fuente">
-    <button type="button" id="srcDemo" aria-pressed="true">Ejemplo</button>
-    <button type="button" id="srcCam" aria-pressed="false">Cámara</button>
-    <button type="button" id="srcFile" aria-pressed="false">Video</button>
-  </div>
-  <div class="group-inline" id="camCtx" hidden><button type="button" id="camOff">Apagar cámara</button></div>
-  <div class="group-inline" id="vidCtx" hidden>
-    <button type="button" id="vPlay">▶ Play</button><button type="button" id="vPause">❚❚ Pausa</button>
-    <button type="button" id="vLoop" aria-pressed="true">⟲ Loop</button><button type="button" id="vChange">Cambiar</button>
-  </div>
-  <input type="file" id="fileInput" accept="video/*" hidden>
-  <span class="grow"></span>
-  <span class="mono" id="recBadge" hidden><span class="rec-dot">●</span> REC <span id="recBadgeT">0:00</span></span>
-  <div class="group-inline" role="group" aria-label="Capas">
-    <button type="button" class="toggle" id="tLines" aria-pressed="true">Líneas</button>
-    <button type="button" class="toggle" id="tNotes" aria-pressed="true">Notas</button>
-    <button type="button" class="toggle" id="tParts" aria-pressed="true">Partículas</button>
-    <button type="button" class="toggle" id="tSignal" aria-pressed="true">Señal</button>
-  </div>
-</div>
-<script src="script.js"></script>
+      <button type="button" class="icon-btn" id="toggleConsoleBtn" title="Abrir/Cerrar Panel de Control" aria-expanded="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 15a3 3 0 100-6 3 3 0 000 6z" />
+          <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z" />
+        </svg>
+      </button>
+
+      <button type="button" class="icon-btn" id="fsBtn" title="Pantalla completa">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3" />
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- Área Principal de Visualización -->
+  <main class="ocean-stage" id="stage">
+    <!-- Video de fondo en bucle, tamaño completo con aceleración de hardware -->
+    <video id="oceanVideo" src="mar.mp4" autoplay loop muted playsinline preload="auto"></video>
+
+    <!-- Lienzo interactivo para renderizar video, flujo de oleaje y partículas -->
+    <canvas id="viewCanvas"></canvas>
+
+    <!-- Control de Transporte del Video en Pantalla -->
+    <div class="video-transport-pill" id="videoTransport">
+      <button type="button" class="btn-play-pause" id="btnVidPlayPause" title="Pausar / Reanudar video">
+        <span id="vidPlayIcon">❚❚</span>
+        <span id="vidPlayStatus">En reproducción</span>
+      </button>
+      <span class="vid-time" id="vidTime">0:00 / 0:18</span>
+    </div>
+
+    <!-- Banner de Alerta CORS / file:// Protocol -->
+    <div class="protocol-warning-banner" id="protocolWarning" hidden>
+      <div class="warning-icon">⚠️</div>
+      <div class="warning-content">
+        <strong>Modo Archivo Local detectado (file://)</strong>
+        <p>Tu navegador bloquea el análisis de píxeles por seguridad en archivos locales. Ejecuta <code>iniciar-servidor.bat</code> para análisis en tiempo real o activa la <b>Simulación</b>.</p>
+      </div>
+      <button type="button" class="btn-dismiss-warning" id="btnDismissWarning">Entendido</button>
+    </div>
+
+    <!-- Overlay de aviso inicial para activar audio -->
+    <div class="audio-prompt-backdrop" id="audioPrompt">
+      <div class="prompt-card">
+        <div class="prompt-ripple">
+          <div class="r1"></div><div class="r2"></div><div class="r3"></div>
+          <span class="prompt-icon">🌊</span>
+        </div>
+        <h2>Escuchar el Océano</h2>
+        <p>El oleaje de <b>mar.mp4</b> modula en tiempo real un paisaje sonoro ambiental generado a partir de 3 capas auditivas.</p>
+        <button type="button" class="btn-primary" id="startAudioBtn">
+          <span>▶ Comenzar Experiencia Sonora</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- HUD de Telemetría Oceánica (Flotante inferior izquierda) -->
+    <div class="ocean-telemetry">
+      <div class="telemetry-header">
+        <span class="tele-title">HIDRODINÁMICA</span>
+        <span class="tele-badge" id="teleDominantTrack">Calma</span>
+      </div>
+      <div class="telemetry-grid">
+        <div class="tele-item">
+          <span class="tele-lbl">Agitación M</span>
+          <span class="tele-val highlight" id="teleMs">0.00</span>
+        </div>
+        <div class="tele-item">
+          <span class="tele-lbl">Instantánea</span>
+          <span class="tele-val" id="teleRaw">0.00</span>
+        </div>
+        <div class="tele-item">
+          <span class="tele-lbl">Píxeles activos</span>
+          <span class="tele-val" id="teleArea">0.0 %</span>
+        </div>
+        <div class="tele-item">
+          <span class="tele-lbl">Estado Video</span>
+          <span class="tele-val" id="teleVidState">Cargando</span>
+        </div>
+      </div>
+      <div class="tele-bar-container">
+        <div class="tele-bar-track">
+          <div class="tele-bar-fill" id="teleBarFill"></div>
+          <div class="tele-bar-marker" id="teleBarMarker"></div>
+        </div>
+        <div class="tele-bar-labels">
+          <span>Calma</span>
+          <span>Oleaje</span>
+          <span>Tempestad</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Notificación emergente / Toast -->
+    <div class="ocean-toast" id="oceanToast" hidden></div>
+  </main>
+
+  <!-- Consola Flotante Lateral de Control -->
+  <aside class="control-console" id="controlConsole" aria-label="Consola de Control Hidroacústico">
+    <div class="console-scroll">
+
+      <!-- Sección 1: Medidor de Agitación y Estado -->
+      <section class="console-card">
+        <div class="card-head">
+          <h3>Nivel de Agitación</h3>
+          <span class="chip" id="chipState">Calma</span>
+        </div>
+        <div class="gauge-wrapper">
+          <svg class="radial-gauge" viewBox="0 0 120 120">
+            <circle class="gauge-bg" cx="60" cy="60" r="50" />
+            <circle class="gauge-fill" id="gaugeFill" cx="60" cy="60" r="50" />
+          </svg>
+          <div class="gauge-center">
+            <span class="gauge-number" id="gaugePct">0</span>
+            <span class="gauge-unit">% AGITACIÓN</span>
+          </div>
+        </div>
+        <p class="card-desc">
+          Calcula la fracción de agua en movimiento en cada fotograma del mar para gobernar el crossfade sonoro.
+        </p>
+      </section>
+
+      <!-- Sección 2: Mezclador de Paisaje Sonoro (Las 3 pistas) -->
+      <section class="console-card">
+        <div class="card-head">
+          <h3>Paisaje Sonoro Ambiental</h3>
+          <span class="chip-live" id="soundLiveBadge">EN VIVO</span>
+        </div>
+
+        <div class="track-list">
+          <!-- Pista 1: Calma (sinteRetro.wav) -->
+          <div class="track-card track-calma active" id="cardCalma">
+            <div class="track-info">
+              <div class="track-bullet" style="background:#00cfff"></div>
+              <div class="track-meta">
+                <span class="track-name">Calma Marina</span>
+                <span class="track-file">sinteRetro.wav · Marea baja</span>
+              </div>
+              <span class="track-gain" id="gainCalma">100%</span>
+            </div>
+            <div class="track-meter-bar">
+              <div class="meter-fill" id="meterCalma" style="width: 100%; background:#00cfff"></div>
+            </div>
+            <div class="track-controls">
+              <span class="track-range-hint">Rango: 0% – 35% de agitación</span>
+              <button type="button" class="preview-btn" data-track="0" title="Probar sonido en solitario">Probar</button>
+            </div>
+          </div>
+
+          <!-- Pista 2: Agitación (corazon.wav) -->
+          <div class="track-card track-agitacion" id="cardAgitacion">
+            <div class="track-info">
+              <div class="track-bullet" style="background:#42e07a"></div>
+              <div class="track-meta">
+                <span class="track-name">Oleaje y Pulso</span>
+                <span class="track-file">corazon.wav · Movimiento vivo</span>
+              </div>
+              <span class="track-gain" id="gainAgitacion">0%</span>
+            </div>
+            <div class="track-meter-bar">
+              <div class="meter-fill" id="meterAgitacion" style="width: 0%; background:#42e07a"></div>
+            </div>
+            <div class="track-controls">
+              <span class="track-range-hint">Rango: 18% – 72% de agitación</span>
+              <button type="button" class="preview-btn" data-track="1" title="Probar sonido en solitario">Probar</button>
+            </div>
+          </div>
+
+          <!-- Pista 3: Tempestad (MRI.mp3) -->
+          <div class="track-card track-tempestad" id="cardTempestad">
+            <div class="track-info">
+              <div class="track-bullet" style="background:#ff9a3c"></div>
+              <div class="track-meta">
+                <span class="track-name">Tempestad y Resonancia</span>
+                <span class="track-file">MRI.mp3 · Oleaje violento</span>
+              </div>
+              <span class="track-gain" id="gainTempestad">0%</span>
+            </div>
+            <div class="track-meter-bar">
+              <div class="meter-fill" id="meterTempestad" style="width: 0%; background:#ff9a3c"></div>
+            </div>
+            <div class="track-controls">
+              <span class="track-range-hint">Rango: 55% – 100% de agitación</span>
+              <button type="button" class="preview-btn" data-track="2" title="Probar sonido en solitario">Probar</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Diagrama interactivo del espectro de transición -->
+        <div class="crossfade-visualizer">
+          <div class="cf-labels">
+            <span>Calma</span>
+            <span>Oleaje</span>
+            <span>Tempestad</span>
+          </div>
+          <div class="cf-bands">
+            <div class="cf-band band-1" style="flex:35;"></div>
+            <div class="cf-band band-2" style="flex:40;"></div>
+            <div class="cf-band band-3" style="flex:25;"></div>
+            <div class="cf-cursor" id="cfCursor"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Sección 3: Calibración Hidrodinámica -->
+      <section class="console-card">
+        <div class="card-head">
+          <h3>Calibración del Mar</h3>
+        </div>
+
+        <div class="slider-row">
+          <div class="slider-header">
+            <label for="slSens">Sensibilidad (Umbral píxel)</label>
+            <output id="outSens">8</output>
+          </div>
+          <input type="range" id="slSens" min="2" max="40" step="1" value="8">
+          <span class="slider-hint">Cuánto debe cambiar el brillo de un píxel entre dos fotogramas para contar como movimiento. Con mar.mp4 funciona bien entre 6 y 12.</span>
+        </div>
+
+        <div class="slider-row">
+          <div class="slider-header">
+            <label for="slTop">Techo de Agitación (M = 1.0)</label>
+            <output id="outTop">12 %</output>
+          </div>
+          <input type="range" id="slTop" min="3" max="35" step="1" value="12">
+          <span class="slider-hint">% de superficie marina en movimiento para alcanzar el oleaje tempestuoso.</span>
+        </div>
+
+        <div class="slider-row">
+          <div class="slider-header">
+            <label for="slSmooth">Inercia / Suavizado</label>
+            <output id="outSmooth">1.2 s</output>
+          </div>
+          <input type="range" id="slSmooth" min="2" max="30" step="1" value="12">
+          <span class="slider-hint">Cuánto tarda M en reaccionar: evita que el ruido de un fotograma cambie el sonido.</span>
+        </div>
+
+        <div class="slider-row">
+          <div class="slider-header">
+            <label for="slFade">Tiempo de Fundido</label>
+            <output id="outFade">1.2 s</output>
+          </div>
+          <input type="range" id="slFade" min="2" max="30" step="1" value="12">
+          <span class="slider-hint">Duración del crossfade acústico entre las capas sonoras.</span>
+        </div>
+
+        <!-- Modo Simulación Manual para pruebas inmediatas -->
+        <div class="simulation-box">
+          <div class="sim-header">
+            <span>Simulación manual de oleaje</span>
+            <label class="switch">
+              <input type="checkbox" id="chkSimulate">
+              <span class="slider-toggle"></span>
+            </label>
+          </div>
+          <div class="slider-row" id="simSliderRow" hidden>
+            <div class="slider-header">
+              <label for="slSimVal">Fuerza manual del mar</label>
+              <output id="outSimVal">50 %</output>
+            </div>
+            <input type="range" id="slSimVal" min="0" max="100" step="1" value="50">
+          </div>
+        </div>
+      </section>
+
+      <!-- Sección 4: Visualización y Master -->
+      <section class="console-card">
+        <div class="card-head">
+          <h3>Visualización y Master</h3>
+        </div>
+
+        <div class="view-mode-selector" role="group" aria-label="Modo de Visualización">
+          <button type="button" class="mode-btn active" data-view="video">Video Puro</button>
+          <button type="button" class="mode-btn" data-view="aura">Flujo de Olas</button>
+          <button type="button" class="mode-btn" data-view="mask">Visión Máquina</button>
+        </div>
+
+        <div class="toggle-row">
+          <span>Partículas de espuma marina</span>
+          <label class="switch">
+            <input type="checkbox" id="chkParticles" checked>
+            <span class="slider-toggle"></span>
+          </label>
+        </div>
+
+        <div class="slider-row">
+          <div class="slider-header">
+            <label for="slVolume">Volumen Maestro</label>
+            <output id="outVolume">75 %</output>
+          </div>
+          <input type="range" id="slVolume" min="0" max="100" step="1" value="75">
+        </div>
+
+        <!-- Grabación de Audio -->
+        <div class="recorder-deck">
+          <div class="rec-status-line">
+            <button type="button" class="btn-rec" id="btnRecord">
+              <span class="rec-dot"></span>
+              <span id="btnRecordTxt">Grabar Mezcla</span>
+            </button>
+            <span class="rec-time" id="recTimeTxt">0:00</span>
+          </div>
+          <button type="button" class="btn-download" id="btnDownloadRec" disabled>
+            ⬇ Descargar Mezcla de Audio
+          </button>
+        </div>
+      </section>
+
+    </div>
+  </aside>
+
+  <!-- Barra Inferior: Espectrograma / Ondas de Audio en Vivo -->
+  <footer class="app-footer">
+    <div class="footer-left">
+      <span class="footer-tag">ESPECTRO HIDROACÚSTICO</span>
+    </div>
+    <div class="footer-center">
+      <canvas id="audioVisualizerCanvas"></canvas>
+    </div>
+    <div class="footer-right">
+      <span class="footer-info" id="footerInfo">mar.mp4 · Bucle continuo</span>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
 </body>
 </html>

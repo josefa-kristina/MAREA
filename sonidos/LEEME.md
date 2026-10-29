@@ -1,16 +1,12 @@
-# Sonidos propios
+# Capas Sonoras Ambientales de MAREA
 
-Esta carpeta es para las grabaciones que quieran usar en vez de las notas sintetizadas: aves, autos, lluvia, animales, voces, objetos.
+Esta carpeta contiene los tres audios ambientales que componen la experiencia hidroacústica en función de la agitación del agua:
 
-- Formatos: WAV, MP3 u OGG.
-- Duración recomendada: de 0,3 a 5 segundos, sin silencio al inicio.
-- Nombres simples, sin espacios ni tildes: `ave.wav`, `auto.wav`, `lluvia.wav`.
-- Si los descargan de internet (por ejemplo de freesound.org), revisen la licencia de cada archivo y anoten aquí al autor y la fuente.
+1. **`sinteRetro.wav`** — **Calma Marina**
+   - Sonido ambiental etéreo y continuo. Suena a pleno cuando el mar está sereno o en calma (M: 0% – 35%).
+2. **`corazon.wav`** — **Oleaje y Pulso**
+   - Latido rítmico y pulso acuático. Se introduce cuando el oleaje cobra fuerza y vigor (M: 20% – 75%).
+3. **`MRI.mp3`** — **Tempestad y Resonancia**
+   - Resonancia profunda y turbulenta. Domina cuando el agua experimenta oleaje violento o máxima agitación (M: 60% – 100%).
 
-Cómo conectarlos con la herramienta está en la sección **Usar otros sonidos** del `README.md` principal.
-
-## Créditos de los sonidos
-
-| Archivo | Autor | Fuente | Licencia |
-|---|---|---|---|
-| | | | |
+Todos los audios se reproducen en bucle continuo y de manera simultánea en la Web Audio API; el movimiento del mar modula únicamente sus ganancias de forma suave y sin cortes gracias a una rampa de crossfade de potencia constante.
