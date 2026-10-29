@@ -4,7 +4,7 @@
 
 ---
 
-## 🌊 Funcionamiento
+## Funcionamiento
 
 La experiencia se basa en una cadena de análisis de visión por computadora y síntesis sonora:
 
@@ -22,7 +22,7 @@ Video del Mar → Cuadros a 15 FPS → Análisis de Píxeles Móviles → Índic
 
 ---
 
-## 🎨 Nuevo Diseño y Layout
+## Nuevo Diseño y Layout
 
 El proyecto ha sido rediseñado completamente con una estética contemporánea de instalación hidroacústica:
 - **Tema Oceánico Abisal:** Vidrio traslúcido oscuro (*dark glassmorphism*), acentos cian y aguamarina bioluminiscentes, y tipografía geométrica moderna (*Outfit* y *JetBrains Mono*).
@@ -38,7 +38,7 @@ El proyecto ha sido rediseñado completamente con una estética contemporánea d
 
 ---
 
-## 🚀 Cómo Iniciar el Proyecto
+## Cómo Iniciar el Proyecto
 
 Los navegadores modernos restringen la carga de archivos de audio locales mediante el protocolo `file://` por políticas de CORS. Para ejecutarlo en tu computadora:
 
