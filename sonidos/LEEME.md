@@ -11,7 +11,7 @@ Esta carpeta contiene los tres audios ambientales que componen la experiencia hi
 
    ## Créditos de los sonidos
 
-| Archivo | Autor | Fuente | Licencia |
+| N° | Archivo | Autor | Fuente | Licencia |
 |---|---|---|---|---|
 | 1. | Retro Synth Single Note | Roloxi | [freesound.org](https://freesound.org/s/683116/) | Creative Commons 0 |
 | 2. | Heartbeat pumping | BrainClaim | [freesound.org](https://freesound.org/s/848139/) | Creative Commons 0 |
